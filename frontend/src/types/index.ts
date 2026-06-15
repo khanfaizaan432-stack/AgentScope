@@ -26,6 +26,40 @@ export interface HealthReport {
   summary: string;
 }
 
+export type HealthVerdict = "Excellent" | "Good" | "Fair" | "Poor" | "Critical";
+
+export interface ExecutiveSummary {
+  overview: string;
+  key_findings: string[];
+  priority_actions: string[];
+  health_verdict: HealthVerdict;
+}
+
+export interface CausalAnalysis {
+  root_cause_node: string | null;
+  failure_path: string[];
+  node_metrics: Record<
+    string,
+    {
+      duration_ms: number;
+      cost_usd: number;
+    }
+  >;
+}
+
+/** Coerce backend metric fields to finite numbers; malformed values become 0. */
+export function sanitizeIncomingMetrics(metrics: {
+  duration_ms?: unknown;
+  cost_usd?: unknown;
+}): { duration_ms: number; cost_usd: number } {
+  const duration = Number(metrics.duration_ms);
+  const cost = Number(metrics.cost_usd);
+  return {
+    duration_ms: Number.isFinite(duration) ? duration : 0,
+    cost_usd: Number.isFinite(cost) ? cost : 0,
+  };
+}
+
 export interface ToolUsageStats {
   tool_name: string;
   call_count: number;
@@ -123,6 +157,37 @@ export interface WorkflowGraph {
   edges: GraphEdge[];
 }
 
+export interface LangGraphStateLoop {
+  cycle_length: number;
+  repeated_states: string[];
+  repetitions: number;
+  step_indices: number[];
+  severity: IssueSeverity;
+}
+
+export interface LangGraphBranchAnalysis {
+  branch_count: number;
+  max_branch_depth: number;
+  dead_end_branches: number;
+  successful_branches: number;
+  summary: string;
+}
+
+export interface LangGraphNodeBottleneck {
+  most_expensive_node: string | null;
+  most_expensive_cost_usd: number;
+  slowest_node: string | null;
+  slowest_duration_ms: number | null;
+  most_frequent_node: string | null;
+  most_frequent_count: number;
+}
+
+export interface LangGraphAnalysisResult {
+  state_loops: LangGraphStateLoop[];
+  branches: LangGraphBranchAnalysis | null;
+  bottlenecks: LangGraphNodeBottleneck | null;
+}
+
 export interface AnalysisReport {
   metadata: {
     run_id: string;
@@ -133,6 +198,8 @@ export interface AnalysisReport {
     started_at: string | null;
     completed_at: string | null;
   };
+  executive_summary: ExecutiveSummary;
+  causal_analysis: CausalAnalysis;
   health: HealthReport;
   issues: Issue[];
   recommendations: Recommendation[];
@@ -144,4 +211,22 @@ export interface AnalysisReport {
   timeline: TimelineNode[];
   timeline_edges: TimelineEdge[];
   workflow_graph: WorkflowGraph;
+  langgraph_analysis?: LangGraphAnalysisResult | null;
+}
+
+export interface MetricDelta {
+  before: number;
+  after: number;
+  delta: number;
+}
+
+export interface ComparisonReport {
+  score_delta: MetricDelta;
+  cost_delta: MetricDelta;
+  loop_delta: MetricDelta;
+  redundancy_delta: MetricDelta;
+  hallucination_delta: MetricDelta;
+  regressions: string[];
+  improvements: string[];
+  verdict: string;
 }

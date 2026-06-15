@@ -137,6 +137,62 @@ class WorkflowGraph(BaseModel):
     edges: list[GraphEdge]
 
 
+class LangGraphStateLoop(BaseModel):
+    cycle_length: int
+    repeated_states: list[str]
+    repetitions: int
+    step_indices: list[int] = Field(default_factory=list)
+    severity: IssueSeverity = IssueSeverity.MEDIUM
+
+
+class LangGraphBranchAnalysis(BaseModel):
+    branch_count: int
+    max_branch_depth: int
+    dead_end_branches: int
+    successful_branches: int
+    summary: str
+
+
+class LangGraphNodeBottleneck(BaseModel):
+    most_expensive_node: str | None = None
+    most_expensive_cost_usd: float = 0.0
+    slowest_node: str | None = None
+    slowest_duration_ms: float | None = None
+    most_frequent_node: str | None = None
+    most_frequent_count: int = 0
+
+
+class LangGraphAnalysisResult(BaseModel):
+    state_loops: list[LangGraphStateLoop] = Field(default_factory=list)
+    branches: LangGraphBranchAnalysis | None = None
+    bottlenecks: LangGraphNodeBottleneck | None = None
+
+
+class HealthVerdict(str, Enum):
+    EXCELLENT = "Excellent"
+    GOOD = "Good"
+    FAIR = "Fair"
+    POOR = "Poor"
+    CRITICAL = "Critical"
+
+
+class ExecutiveSummary(BaseModel):
+    overview: str
+    key_findings: list[str] = Field(default_factory=list)
+    priority_actions: list[str] = Field(default_factory=list)
+    health_verdict: HealthVerdict
+
+
+class CausalAnalysis(BaseModel):
+    """
+    Deterministic causal tracing output for failure analysis and visual analytics.
+    """
+
+    root_cause_node: str | None = None
+    failure_path: list[str] = Field(default_factory=list)
+    node_metrics: dict[str, dict[str, float]] = Field(default_factory=dict)
+
+
 class HealthReport(BaseModel):
     score: int
     grade: str
@@ -147,6 +203,8 @@ class HealthReport(BaseModel):
 
 class AnalysisReport(BaseModel):
     metadata: dict[str, Any]
+    executive_summary: ExecutiveSummary
+    causal_analysis: CausalAnalysis = Field(default_factory=CausalAnalysis)
     health: HealthReport
     issues: list[Issue]
     recommendations: list["Recommendation"] = Field(default_factory=list)
@@ -158,3 +216,4 @@ class AnalysisReport(BaseModel):
     timeline: list[TimelineNode]
     timeline_edges: list[TimelineEdge]
     workflow_graph: WorkflowGraph
+    langgraph_analysis: LangGraphAnalysisResult | None = None

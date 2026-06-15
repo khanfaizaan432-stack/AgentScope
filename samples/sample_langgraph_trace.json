@@ -1,0 +1,20 @@
+{
+  "metadata": {
+    "run_id": "langgraph-sample-1",
+    "framework": "langgraph",
+    "status": "success",
+    "agent_name": "LangGraphAgent"
+  },
+  "events": [
+    { "type": "state_transition", "from": "Planner", "to": "Search" },
+    { "type": "tool_call", "name": "Search", "arguments": { "q": "agentscope langgraph trace" } },
+    { "type": "tool_result", "name": "Search", "content": "ok" },
+    { "type": "state_transition", "from": "Search", "to": "Planner" },
+    { "type": "message", "role": "assistant", "content": "Refining the plan based on search results." },
+    { "type": "state_transition", "from": "Planner", "to": "Search" },
+    { "type": "tool_call", "name": "Search", "arguments": { "q": "langgraph loop detection abab" } },
+    { "type": "tool_result", "name": "Search", "content": "ok" },
+    { "type": "state_transition", "from": "Search", "to": "Planner" }
+  ]
+}
+

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Activity, Search, DollarSign, Brain, Shield } from "lucide-react";
 import UploadForm from "@/components/UploadForm";
-import { analyzeTrace, analyzeSample } from "@/lib/api";
+import OnboardingDemo from "@/components/OnboardingDemo";
+import { analyzeTrace, analyzeSample, analyzeChaoticDemo } from "@/lib/api";
 import { AnalysisReport } from "@/types";
 import ReportDashboard from "@/components/ReportDashboard";
 
@@ -11,6 +12,7 @@ export default function Home() {
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [scrollToFailurePanels, setScrollToFailurePanels] = useState(false);
 
   const handleUpload = async (file: File) => {
     setLoading(true);
@@ -41,10 +43,32 @@ export default function Home() {
   const handleReset = () => {
     setReport(null);
     setError(null);
+    setScrollToFailurePanels(false);
+  };
+
+  const handleTriageDemo = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const result = await analyzeChaoticDemo();
+      setScrollToFailurePanels(true);
+      setReport(result);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Triage demo failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (report) {
-    return <ReportDashboard report={report} onReset={handleReset} />;
+    return (
+      <ReportDashboard
+        report={report}
+        onReset={handleReset}
+        scrollToFailurePanels={scrollToFailurePanels}
+      />
+    );
   }
 
   return (
@@ -57,7 +81,11 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="max-w-6xl mx-auto px-6 py-20 text-center">
+      <section className="max-w-6xl mx-auto px-6 pt-10 pb-6">
+        <OnboardingDemo onTriage={handleTriageDemo} loading={loading} />
+      </section>
+
+      <section className="max-w-6xl mx-auto px-6 py-14 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
           <span className="gradient-text">Datadog for AI Agents</span>
         </h1>

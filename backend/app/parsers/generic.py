@@ -61,6 +61,7 @@ class GenericParser(BaseParser):
                     type=step_type,
                     timestamp=s.get("timestamp"),
                     content=s.get("content", ""),
+                    node_name=s.get("node_name"),
                     tool_name=tool_name,
                     tool_input=s.get("tool_input", {}),
                     tool_output=s.get("tool_output", {}),
@@ -68,6 +69,7 @@ class GenericParser(BaseParser):
                     state_to=s.get("state_to"),
                     tokens=tokens,
                     cost_usd=cost,
+                    duration_ms=s.get("duration_ms"),
                     stage=stage,
                 )
             )

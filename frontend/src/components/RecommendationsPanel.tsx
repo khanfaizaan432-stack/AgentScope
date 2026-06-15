@@ -24,37 +24,37 @@ const severityConfig: Record<
   critical: {
     icon: XCircle,
     color: "text-red-400",
-    bg: "bg-red-500/8",
-    border: "border-red-500/25",
-    badge: "bg-red-500/20 text-red-400",
+    bg: "bg-red-500 bg-opacity-10",
+    border: "border-red-500 border-opacity-25",
+    badge: "bg-red-500 bg-opacity-20 text-red-400",
   },
   high: {
     icon: AlertTriangle,
     color: "text-orange-400",
-    bg: "bg-orange-500/8",
-    border: "border-orange-500/25",
-    badge: "bg-orange-500/20 text-orange-400",
+    bg: "bg-orange-500 bg-opacity-10",
+    border: "border-orange-500 border-opacity-25",
+    badge: "bg-orange-500 bg-opacity-20 text-orange-400",
   },
   medium: {
     icon: AlertCircle,
     color: "text-yellow-400",
-    bg: "bg-yellow-500/8",
-    border: "border-yellow-500/25",
-    badge: "bg-yellow-500/20 text-yellow-400",
+    bg: "bg-yellow-500 bg-opacity-10",
+    border: "border-yellow-500 border-opacity-25",
+    badge: "bg-yellow-500 bg-opacity-20 text-yellow-400",
   },
   low: {
     icon: Info,
     color: "text-blue-400",
-    bg: "bg-blue-500/8",
-    border: "border-blue-500/25",
-    badge: "bg-blue-500/20 text-blue-400",
+    bg: "bg-blue-500 bg-opacity-10",
+    border: "border-blue-500 border-opacity-25",
+    badge: "bg-blue-500 bg-opacity-20 text-blue-400",
   },
   info: {
     icon: Info,
     color: "text-zinc-400",
-    bg: "bg-zinc-500/8",
-    border: "border-zinc-500/20",
-    badge: "bg-zinc-500/20 text-zinc-400",
+    bg: "bg-zinc-500 bg-opacity-10",
+    border: "border-zinc-500 border-opacity-20",
+    badge: "bg-zinc-500 bg-opacity-20 text-zinc-400",
   },
 };
 
@@ -182,7 +182,7 @@ function RecommendationCard({ rec, index }: { rec: Recommendation; index: number
             <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
               Recommendation
             </p>
-            <div className="flex gap-2 p-3 rounded-lg bg-indigo-500/8 border border-indigo-500/20">
+            <div className="flex gap-2 p-3 rounded-lg bg-indigo-500 bg-opacity-10 border border-indigo-500 border-opacity-20">
               <Lightbulb className="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-zinc-300 leading-relaxed">{rec.recommendation}</p>
             </div>

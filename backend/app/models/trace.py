@@ -45,6 +45,7 @@ class TraceStep(BaseModel):
     type: StepType
     timestamp: str | None = None
     content: str = ""
+    node_name: str | None = None
     tool_name: str | None = None
     tool_input: dict[str, Any] = Field(default_factory=dict)
     tool_output: dict[str, Any] = Field(default_factory=dict)
@@ -52,6 +53,7 @@ class TraceStep(BaseModel):
     state_to: str | None = None
     tokens: TokenUsage = Field(default_factory=TokenUsage)
     cost_usd: float = 0.0
+    duration_ms: float | None = None
     stage: Stage = Stage.UNKNOWN
 
 

@@ -97,7 +97,11 @@ class LoopDetector:
                 G.add_edge(step.state_from, step.state_to)
 
         try:
-            cycles = list(nx.simple_cycles(G))
+            cycles: list[list[str]] = []
+            for cycle in nx.simple_cycles(G, length_bound=10):
+                cycles.append(cycle)
+                if len(cycles) >= 20:
+                    break
         except nx.NetworkXError:
             return events
 

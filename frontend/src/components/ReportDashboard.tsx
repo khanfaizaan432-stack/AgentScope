@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { AnalysisReport } from "@/types";
-import { Activity, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { Activity, ArrowLeft, ArrowRightLeft } from "lucide-react";
 import HealthScore from "@/components/HealthScore";
 import IssuesList from "@/components/IssuesList";
 import ToolUsageChart from "@/components/ToolUsageChart";
@@ -9,13 +11,40 @@ import CostBreakdown from "@/components/CostBreakdown";
 import AgentTimeline from "@/components/AgentTimeline";
 import FailureGraph from "@/components/FailureGraph";
 import RecommendationsPanel from "@/components/RecommendationsPanel";
+import LangGraphInsights from "@/components/LangGraphInsights";
+import ExecutiveSummaryPanel from "@/components/ExecutiveSummaryPanel";
+import MetricHeatmapPanel from "@/components/MetricHeatmapPanel";
+import CausalAnalysisPanel from "@/components/CausalAnalysisPanel";
 
 interface ReportDashboardProps {
   report: AnalysisReport;
   onReset: () => void;
+  scrollToFailurePanels?: boolean;
 }
 
-export default function ReportDashboard({ report, onReset }: ReportDashboardProps) {
+export default function ReportDashboard({
+  report,
+  onReset,
+  scrollToFailurePanels = false,
+}: ReportDashboardProps) {
+  useEffect(() => {
+    if (!scrollToFailurePanels) return;
+
+    let innerTimer: number | undefined;
+    const outerTimer = window.setTimeout(() => {
+      document.getElementById("causal-analysis")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      innerTimer = window.setTimeout(() => {
+        document.getElementById("metric-heatmap")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 600);
+    }, 150);
+
+    return () => {
+      window.clearTimeout(outerTimer);
+      if (innerTimer !== undefined) {
+        window.clearTimeout(innerTimer);
+      }
+    };
+  }, [scrollToFailurePanels]);
   return (
     <main className="min-h-screen">
       <header className="border-b border-border sticky top-0 z-50 bg-background/80 backdrop-blur-md">
@@ -27,13 +56,19 @@ export default function ReportDashboard({ report, onReset }: ReportDashboardProp
               Report — {report.metadata.run_id}
             </span>
           </div>
-          <button
-            onClick={onReset}
-            className="flex items-center gap-2 text-sm text-zinc-400 hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            New Analysis
-          </button>
+          <div className="flex items-center gap-4">
+            <Link href="/compare" className="flex items-center gap-2 text-sm text-zinc-400 hover:text-foreground transition-colors">
+              <ArrowRightLeft className="w-4 h-4" />
+              Compare Runs
+            </Link>
+            <button
+              onClick={onReset}
+              className="flex items-center gap-2 text-sm text-zinc-400 hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              New Analysis
+            </button>
+          </div>
         </div>
       </header>
 
@@ -64,6 +99,10 @@ export default function ReportDashboard({ report, onReset }: ReportDashboardProp
           </span>
         </div>
 
+        <ExecutiveSummaryPanel data={report.executive_summary} />
+        <CausalAnalysisPanel data={report.causal_analysis} />
+        <MetricHeatmapPanel data={report.causal_analysis} />
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <HealthScore health={report.health} />
           <div className="lg:col-span-2">
@@ -72,6 +111,10 @@ export default function ReportDashboard({ report, onReset }: ReportDashboardProp
         </div>
 
         <RecommendationsPanel recommendations={report.recommendations} />
+
+        {report.metadata.framework === "langgraph" && report.langgraph_analysis && (
+          <LangGraphInsights analysis={report.langgraph_analysis} />
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ToolUsageChart data={report.tool_analysis} />
